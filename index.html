@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A simple, professional, multi-mode calculator featuring Standard, Scientific, and Age calculation tools.">
+    <title>OmniCalc - Professional Multi-Calculator</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="2" width="16" height="20" rx="3" ry="3"></rect>
+                        <line x1="8" y1="6" x2="16" y2="6"></line>
+                        <line x1="16" y1="14" x2="16" y2="18"></line>
+                        <path d="M8 10h.01M12 10h.01M16 10h.01M8 14h.01M12 14h.01M8 18h.01M12 18h.01"></path>
+                    </svg>
+                </div>
+                <span class="brand-name">OmniCalc</span>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="nav-tabs" role="tablist" aria-label="Calculator Mode Selector">
+                <button class="tab-btn active" data-tab="standard" role="tab" aria-selected="true" aria-controls="tab-standard" id="tab-btn-standard">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8.01" y2="10"/><line x1="12" y1="10" x2="12.01" y2="10"/><line x1="16" y1="10" x2="16.01" y2="10"/><line x1="8" y1="14" x2="8.01" y2="14"/><line x1="12" y1="14" x2="12.01" y2="14"/><line x1="16" y1="14" x2="16" y2="18"/></svg>
+                    <span>Standard</span>
+                </button>
+                <button class="tab-btn" data-tab="scientific" role="tab" aria-selected="false" aria-controls="tab-scientific" id="tab-btn-scientific">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19L20 5"/><path d="M9 7h6M9 17h6"/><circle cx="6" cy="7" r="1.5"/><circle cx="18" cy="17" r="1.5"/></svg>
+                    <span>Scientific</span>
+                </button>
+                <button class="tab-btn" data-tab="age" role="tab" aria-selected="false" aria-controls="tab-age" id="tab-btn-age">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>Age</span>
+                </button>
+            </nav>
+
+            <div class="header-actions">
+                <!-- History Toggle Button -->
+                <button class="icon-btn" id="history-toggle-btn" title="Calculation History" aria-label="Toggle History">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </button>
+                <!-- Theme Toggle Button -->
+                <button class="icon-btn" id="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Theme">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Body -->
+        <main class="main-content">
+            <!-- Left Side / Calculator Views -->
+            <div class="calculator-card">
+                <!-- STANDARD CALCULATOR -->
+                <section class="tab-panel active" id="tab-standard" role="tabpanel" aria-labelledby="tab-btn-standard">
+                    <!-- Display -->
+                    <div class="display-container">
+                        <div class="expression-line" id="std-expression">&nbsp;</div>
+                        <div class="main-line" id="std-display">0</div>
+                    </div>
+                    <!-- Keypad -->
+                    <div class="keypad std-keypad">
+                        <button class="btn btn-action" data-action="clear">AC</button>
+                        <button class="btn btn-action" data-action="backspace">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+                        </button>
+                        <button class="btn btn-action" data-action="percent">%</button>
+                        <button class="btn btn-operator" data-action="operator" data-value="/">÷</button>
+
+                        <button class="btn btn-num" data-value="7">7</button>
+                        <button class="btn btn-num" data-value="8">8</button>
+                        <button class="btn btn-num" data-value="9">9</button>
+                        <button class="btn btn-operator" data-action="operator" data-value="*">×</button>
+
+                        <button class="btn btn-num" data-value="4">4</button>
+                        <button class="btn btn-num" data-value="5">5</button>
+                        <button class="btn btn-num" data-value="6">6</button>
+                        <button class="btn btn-operator" data-action="operator" data-value="-">−</button>
+
+                        <button class="btn btn-num" data-value="1">1</button>
+                        <button class="btn btn-num" data-value="2">2</button>
+                        <button class="btn btn-num" data-value="3">3</button>
+                        <button class="btn btn-operator" data-action="operator" data-value="+">+</button>
+
+                        <button class="btn btn-action" data-action="negate">±</button>
+                        <button class="btn btn-num" data-value="0">0</button>
+                        <button class="btn btn-num" data-value=".">.</button>
+                        <button class="btn btn-equals" data-action="equals">=</button>
+                    </div>
+                </section>
+
+                <!-- SCIENTIFIC CALCULATOR -->
+                <section class="tab-panel" id="tab-scientific" role="tabpanel" aria-labelledby="tab-btn-scientific">
+                    <!-- Display -->
+                    <div class="display-container">
+                        <div class="display-sub-info">
+                            <span class="mode-badge" id="angle-mode-btn" title="Click to toggle DEG/RAD">DEG</span>
+                            <span class="memory-badge" id="sci-memory-indicator" style="display: none;">M</span>
+                        </div>
+                        <div class="expression-line" id="sci-expression">&nbsp;</div>
+                        <div class="main-line" id="sci-display">0</div>
+                    </div>
+                    <!-- Keypad -->
+                    <div class="keypad sci-keypad">
+                        <!-- Row 1: Sci Extras -->
+                        <button class="btn btn-sci" data-action="sci-func" data-value="sin">sin</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="cos">cos</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="tan">tan</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="ln">ln</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="log">log</button>
+
+                        <!-- Row 2 -->
+                        <button class="btn btn-sci" data-action="sci-func" data-value="asin">sin⁻¹</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="acos">cos⁻¹</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="atan">tan⁻¹</button>
+                        <button class="btn btn-sci" data-action="sci-const" data-value="e">e</button>
+                        <button class="btn btn-sci" data-action="sci-const" data-value="pi">π</button>
+
+                        <!-- Row 3 -->
+                        <button class="btn btn-sci" data-action="sci-op" data-value="^">xʸ</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="sqr">x²</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="sqrt">√x</button>
+
+                        <!-- Row 4 -->
+                        <button class="btn btn-action" data-action="clear">AC</button>
+                        <button class="btn btn-action" data-action="backspace">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+                        </button>
+
+                        <!-- Numbers & Standard ops mixed -->
+                        <button class="btn btn-sci" data-action="insert" data-value="(">(</button>
+                        <button class="btn btn-sci" data-action="insert" data-value=")"><span style="letter-spacing: 0;">)</span></button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="fact">n!</button>
+                        <button class="btn btn-action" data-action="percent">%</button>
+                        <button class="btn btn-operator" data-action="operator" data-value="/">÷</button>
+
+                        <button class="btn btn-num" data-value="7">7</button>
+                        <button class="btn btn-num" data-value="8">8</button>
+                        <button class="btn btn-num" data-value="9">9</button>
+                        <button class="btn btn-operator" data-action="operator" data-value="*">×</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="cbrt">³√x</button>
+
+                        <button class="btn btn-num" data-value="4">4</button>
+                        <button class="btn btn-num" data-value="5">5</button>
+                        <button class="btn btn-num" data-value="6">6</button>
+                        <button class="btn btn-operator" data-action="operator" data-value="-">−</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="inv">1/x</button>
+
+                        <button class="btn btn-num" data-value="1">1</button>
+                        <button class="btn btn-num" data-value="2">2</button>
+                        <button class="btn btn-num" data-value="3">3</button>
+                        <button class="btn btn-operator" data-action="operator" data-value="+">+</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="abs">|x|</button>
+
+                        <button class="btn btn-action" data-action="negate">±</button>
+                        <button class="btn btn-num" data-value="0">0</button>
+                        <button class="btn btn-num" data-value=".">.</button>
+                        <button class="btn btn-equals" data-action="equals">=</button>
+                        <button class="btn btn-sci" data-action="sci-func" data-value="exp">EXP</button>
+                    </div>
+                </section>
+
+                <!-- AGE CALCULATOR -->
+                <section class="tab-panel" id="tab-age" role="tabpanel" aria-labelledby="tab-btn-age">
+                    <div class="age-calculator-wrapper">
+                        <div class="age-form">
+                            <div class="input-group">
+                                <label for="dob-input">Date of Birth</label>
+                                <input type="date" id="dob-input" aria-label="Date of birth">
+                            </div>
+                            <div class="input-group">
+                                <label for="target-date-input">Calculate Age At</label>
+                                <input type="date" id="target-date-input" aria-label="Target date for age calculation">
+                            </div>
+                            <button class="btn btn-primary calculate-age-btn" id="calc-age-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                Calculate Age
+                            </button>
+                        </div>
+
+                        <div class="age-results" id="age-results-area">
+                            <div class="primary-age-card">
+                                <span class="age-title">Calculated Age</span>
+                                <div class="primary-values">
+                                    <div class="age-unit-box">
+                                        <span class="num" id="age-years">0</span>
+                                        <span class="label">Years</span>
+                                    </div>
+                                    <div class="age-unit-box">
+                                        <span class="num" id="age-months">0</span>
+                                        <span class="label">Months</span>
+                                    </div>
+                                    <div class="age-unit-box">
+                                        <span class="num" id="age-days">0</span>
+                                        <span class="label">Days</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="next-bday-card">
+                                <div class="card-icon">🎂</div>
+                                <div class="card-info">
+                                    <span class="card-label">Next Birthday</span>
+                                    <span class="card-value" id="next-bday-text">Select your date of birth</span>
+                                </div>
+                            </div>
+
+                            <div class="detail-grid">
+                                <div class="stat-card">
+                                    <span class="stat-label">Total Months</span>
+                                    <span class="stat-val" id="stat-total-months">0</span>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-label">Total Weeks</span>
+                                    <span class="stat-val" id="stat-total-weeks">0</span>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-label">Total Days</span>
+                                    <span class="stat-val" id="stat-total-days">0</span>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-label">Total Hours</span>
+                                    <span class="stat-val" id="stat-total-hours">0</span>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-label">Total Minutes</span>
+                                    <span class="stat-val" id="stat-total-minutes">0</span>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-label">Day of Birth</span>
+                                    <span class="stat-val" id="stat-dob-day">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Side / Collapsible Drawer: History Panel -->
+            <aside class="history-panel" id="history-panel" aria-label="Calculation History">
+                <div class="history-header">
+                    <h3>History</h3>
+                    <button class="clear-history-btn" id="clear-history-btn" title="Clear History">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                        Clear
+                    </button>
+                </div>
+                <div class="history-list" id="history-list">
+                    <div class="empty-history">No history yet</div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
