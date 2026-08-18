@@ -1,5 +1,5 @@
 /**
- * OmniCalc - Professional Multi-Calculator Application
+ * Calculator - Simple, Fast, and Modern
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,18 +18,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let sciResetOnNextInput = false;
 
     // DOM Elements
+    const mainCalculator = document.getElementById('main-calculator');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const historyToggleBtn = document.getElementById('history-toggle-btn');
     const historyPanel = document.getElementById('history-panel');
+    const historyBackdrop = document.getElementById('history-backdrop');
+    const closeHistoryBtn = document.getElementById('close-history-btn');
     const historyList = document.getElementById('history-list');
     const clearHistoryBtn = document.getElementById('clear-history-btn');
+    const historyBadge = document.getElementById('history-badge');
+    const toastFeedback = document.getElementById('toast-feedback');
 
-    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabBtns = document.querySelectorAll('.mode-tab');
     const tabPanels = document.querySelectorAll('.tab-panel');
 
     // Display elements
+    const stdScreen = document.getElementById('std-screen');
     const stdDisplay = document.getElementById('std-display');
     const stdExpressionEl = document.getElementById('std-expression');
+    const sciScreen = document.getElementById('sci-screen');
     const sciDisplay = document.getElementById('sci-display');
     const sciExpressionEl = document.getElementById('sci-expression');
     const angleModeBtn = document.getElementById('angle-mode-btn');
@@ -39,9 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetDateInput = document.getElementById('target-date-input');
     const calcAgeBtn = document.getElementById('calc-age-btn');
 
-    // Initialize Default Dates for Age Calc
-    const today = new Date().toISOString().split('T')[0];
-    targetDateInput.value = today;
+    // Default Dates for Age Calc
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (targetDateInput) targetDateInput.value = todayStr;
 
     // --- THEME MANAGEMENT ---
     const savedTheme = localStorage.getItem('omni_calc_theme') || 'dark';
@@ -54,16 +61,80 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('omni_calc_theme', newTheme);
     });
 
-    // --- HISTORY SIDEBAR ---
+    // --- TOAST HELPER ---
+    let toastTimeout;
+    function showToast(message) {
+        if (!toastFeedback) return;
+        toastFeedback.textContent = message;
+        toastFeedback.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toastFeedback.classList.remove('show');
+        }, 1800);
+    }
+
+    // --- COPY TO CLIPBOARD ON DISPLAY CLICK ---
+    function copyDisplayValue(val) {
+        if (!val || val === '0' || val === 'Error') return;
+        navigator.clipboard.writeText(val).then(() => {
+            showToast('Copied to clipboard');
+        }).catch(() => {
+            showToast('Unable to copy');
+        });
+    }
+
+    if (stdScreen) {
+        stdScreen.addEventListener('click', () => {
+            copyDisplayValue(stdCurrentInput);
+        });
+    }
+
+    if (sciScreen) {
+        sciScreen.addEventListener('click', () => {
+            copyDisplayValue(sciDisplay.textContent.trim());
+        });
+    }
+
+    // --- HISTORY OVERLAY DRAWER ---
+    function openHistory() {
+        historyPanel.classList.add('open');
+        historyPanel.setAttribute('aria-hidden', 'false');
+        historyBackdrop.classList.add('active');
+    }
+
+    function closeHistory() {
+        historyPanel.classList.remove('open');
+        historyPanel.setAttribute('aria-hidden', 'true');
+        historyBackdrop.classList.remove('active');
+    }
+
     historyToggleBtn.addEventListener('click', () => {
-        historyPanel.classList.toggle('collapsed');
+        if (historyPanel.classList.contains('open')) {
+            closeHistory();
+        } else {
+            openHistory();
+        }
     });
+
+    if (closeHistoryBtn) closeHistoryBtn.addEventListener('click', closeHistory);
+    if (historyBackdrop) historyBackdrop.addEventListener('click', closeHistory);
 
     clearHistoryBtn.addEventListener('click', () => {
         history = [];
         localStorage.removeItem('omni_calc_history');
         renderHistory();
+        updateHistoryBadge();
+        showToast('History cleared');
     });
+
+    function updateHistoryBadge() {
+        if (!historyBadge) return;
+        if (history.length > 0) {
+            historyBadge.style.display = 'block';
+        } else {
+            historyBadge.style.display = 'none';
+        }
+    }
 
     function saveHistoryItem(expression, result) {
         if (!expression || result === 'Error') return;
@@ -72,11 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (history.length > 50) history.pop();
         localStorage.setItem('omni_calc_history', JSON.stringify(history));
         renderHistory();
+        updateHistoryBadge();
     }
 
     function renderHistory() {
         if (history.length === 0) {
-            historyList.innerHTML = '<div class="empty-history">No history yet</div>';
+            historyList.innerHTML = '<div class="empty-history">No calculations yet</div>';
             return;
         }
 
@@ -99,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     sciExpression += res;
                     updateSciDisplay();
                 }
+                closeHistory();
             });
         });
     }
@@ -108,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     renderHistory();
+    updateHistoryBadge();
 
     // --- TAB SWITCHING ---
     tabBtns.forEach(btn => {
@@ -127,20 +201,46 @@ document.addEventListener('DOMContentLoaded', () => {
         tabPanels.forEach(p => {
             p.classList.toggle('active', p.id === `tab-${tabName}`);
         });
+
+        // Toggle container mode classes for responsive widths
+        mainCalculator.classList.remove('mode-scientific', 'mode-age');
+        if (tabName === 'scientific') {
+            mainCalculator.classList.add('mode-scientific');
+        } else if (tabName === 'age') {
+            mainCalculator.classList.add('mode-age');
+        }
     }
 
     // --- ANGLE MODE (DEG/RAD) ---
     if (angleModeBtn) {
-        angleModeBtn.addEventListener('click', () => {
+        angleModeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             isDegMode = !isDegMode;
             angleModeBtn.textContent = isDegMode ? 'DEG' : 'RAD';
         });
     }
 
+    // --- DYNAMIC FONT SIZING HELPER ---
+    function adjustFontSize(element, text) {
+        if (!element) return;
+        const len = text.length;
+        if (len > 14) {
+            element.style.fontSize = '1.4rem';
+        } else if (len > 10) {
+            element.style.fontSize = '1.8rem';
+        } else if (len > 7) {
+            element.style.fontSize = '2.1rem';
+        } else {
+            element.style.fontSize = '';
+        }
+    }
+
     // --- STANDARD CALCULATOR LOGIC ---
     function updateStdDisplay() {
-        stdDisplay.textContent = formatNumber(stdCurrentInput);
+        const formatted = formatNumber(stdCurrentInput);
+        stdDisplay.textContent = formatted;
         stdExpressionEl.textContent = stdExpression || '\u00A0';
+        adjustFontSize(stdDisplay, formatted);
     }
 
     function handleStdAction(action, value) {
@@ -221,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Attach listeners to Standard Keypad
-    document.querySelectorAll('#tab-standard .btn').forEach(btn => {
+    document.querySelectorAll('#tab-standard .key').forEach(btn => {
         btn.addEventListener('click', () => {
             const action = btn.getAttribute('data-action');
             const value = btn.getAttribute('data-value');
@@ -235,9 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function evaluateSimpleExpression(exprStr) {
-        // Sanitize string & replace symbols
         let clean = exprStr.replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-');
-        // Basic safe calculation
         const tokens = clean.trim().split(/\s+/);
         if (tokens.length === 0) return 0;
         
@@ -260,8 +358,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- SCIENTIFIC CALCULATOR LOGIC ---
     function updateSciDisplay() {
-        sciDisplay.textContent = sciExpression ? formatSciExpression(sciExpression) : '0';
+        const text = sciExpression ? formatSciExpression(sciExpression) : '0';
+        sciDisplay.textContent = text;
         sciExpressionEl.textContent = sciExpression ? '' : '\u00A0';
+        adjustFontSize(sciDisplay, text);
     }
 
     function formatSciExpression(expr) {
@@ -273,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
                    .replace(/pi/g, 'π');
     }
 
-    document.querySelectorAll('#tab-scientific .btn').forEach(btn => {
+    document.querySelectorAll('#tab-scientific .key').forEach(btn => {
         btn.addEventListener('click', () => {
             const action = btn.getAttribute('data-action');
             const val = btn.getAttribute('data-value');
@@ -291,7 +391,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     sciExpression = '';
                     sciResetOnNextInput = false;
                 } else if (sciExpression.length > 0) {
-                    // Smart backspace for multi-char function names
                     const funcs = ['asin(', 'acos(', 'atan(', 'sqrt(', 'cbrt(', 'fact(', 'sin(', 'cos(', 'tan(', 'log(', 'abs(', 'EXP('];
                     let deleted = false;
                     for (const f of funcs) {
@@ -354,24 +453,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function parseAndEvaluateSci(exprStr, inDegMode) {
         let clean = exprStr.replace(/÷/g, '/').replace(/×/g, '*').replace(/−/g, '-');
 
-        // Insert implicit multiplication * where appropriate
         clean = clean.replace(/(\d|\))\s*(sin|cos|tan|asin|acos|atan|ln|log|sqrt|cbrt|fact|abs|pi|e)\b/gi, '$1*$2');
         clean = clean.replace(/(\d|\))\s*\(/g, '$1*(');
         clean = clean.replace(/\)\s*(\d)/g, ')*$1');
 
-        // Handle Constants
         clean = clean.replace(/pi/g, `(${Math.PI})`);
         clean = clean.replace(/\be\b/g, `(${Math.E})`);
-
-        // Handle EXP notation
         clean = clean.replace(/EXP\(/g, '*10^(');
 
-        // Pre-process Factorial n!
         clean = clean.replace(/(\d+(\.\d+)?|fact\([^)]+\)|[a-z]+\([^)]+\))\!/g, (match, p1) => {
             return `fact(${p1})`;
         });
 
-        // Function Mappings
         const degToRad = (val) => inDegMode ? (val * Math.PI / 180) : val;
         const radToDeg = (val) => inDegMode ? (val * 180 / Math.PI) : val;
 
@@ -383,9 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return res;
         }
 
-        // Tokenizer and Recursive Parser
         function evaluateSubExpr(str) {
-            // Replace function calls
             const mathFuncs = {
                 'sin': (x) => Math.sin(degToRad(x)),
                 'cos': (x) => Math.cos(degToRad(x)),
@@ -401,7 +492,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 'abs': (x) => Math.abs(x)
             };
 
-            // Evaluate nested parentheses
             while (str.includes('(')) {
                 let openIdx = str.lastIndexOf('(');
                 let closeIdx = str.indexOf(')', openIdx);
@@ -425,7 +515,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Power operation ^
             while (str.includes('^')) {
                 let parts = str.split('^');
                 let left = evaluateSubExpr(parts[0]);
@@ -433,15 +522,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return Math.pow(left, right);
             }
 
-            // Multiplication and Division
-            // Use Function constructor safely after sanitizing math string
             if (!/^[0-9+*\/\-\.\s\eE]+$/.test(str)) {
-                // If there are still non-numeric characters, throw
                 throw new Error('Invalid math expression');
             }
 
-            const res = Function(`"use strict"; return (${str})`)();
-            return res;
+            return Function(`"use strict"; return (${str})`)();
         }
 
         const rawResult = evaluateSubExpr(clean);
@@ -458,7 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const targetVal = targetDateInput.value;
 
         if (!dobVal || !targetVal) {
-            alert('Please select both Date of Birth and Target Date.');
+            showToast('Please select both dates');
             return;
         }
 
@@ -466,18 +551,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = new Date(targetVal + 'T00:00:00');
 
         if (dob > target) {
-            alert('Date of Birth cannot be after Target Date.');
+            showToast('Birth date cannot be in future');
             return;
         }
 
-        // Years, Months, Days breakdown
         let years = target.getFullYear() - dob.getFullYear();
         let months = target.getMonth() - dob.getMonth();
         let days = target.getDate() - dob.getDate();
 
         if (days < 0) {
             months -= 1;
-            // Get days in previous month of target
             const prevMonthDate = new Date(target.getFullYear(), target.getMonth(), 0);
             days += prevMonthDate.getDate();
         }
@@ -487,12 +570,10 @@ document.addEventListener('DOMContentLoaded', () => {
             months += 12;
         }
 
-        // Update Primary Age Display
         document.getElementById('age-years').textContent = years;
         document.getElementById('age-months').textContent = months;
         document.getElementById('age-days').textContent = days;
 
-        // Total metrics
         const diffMs = target - dob;
         const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
         const totalWeeks = Math.floor(totalDays / 7);
@@ -506,11 +587,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('stat-total-hours').textContent = totalHours.toLocaleString();
         document.getElementById('stat-total-minutes').textContent = totalMinutes.toLocaleString();
 
-        // Day of Birth
         const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         document.getElementById('stat-dob-day').textContent = daysOfWeek[dob.getDay()];
 
-        // Next Birthday calculation
         let nextBdayYear = target.getFullYear();
         let nextBday = new Date(nextBdayYear, dob.getMonth(), dob.getDate());
 
@@ -522,21 +601,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextBdayDayName = daysOfWeek[nextBday.getDay()];
 
         if (daysUntilNextBday === 0) {
-            document.getElementById('next-bday-text').textContent = `🎉 Happy Birthday! Today is your birthday!`;
+            document.getElementById('next-bday-text').textContent = `🎉 Today is your birthday!`;
         } else {
             document.getElementById('next-bday-text').textContent = `${daysUntilNextBday} day${daysUntilNextBday > 1 ? 's' : ''} left (${nextBdayDayName}, ${nextBday.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })})`;
         }
     }
 
-    if (calcAgeBtn) {
-        calcAgeBtn.addEventListener('click', calculateAge);
-    }
-    if (dobInput) {
-        dobInput.addEventListener('change', calculateAge);
-    }
-    if (targetDateInput) {
-        targetDateInput.addEventListener('change', calculateAge);
-    }
+    if (calcAgeBtn) calcAgeBtn.addEventListener('click', calculateAge);
+    if (dobInput) dobInput.addEventListener('change', calculateAge);
+    if (targetDateInput) targetDateInput.addEventListener('change', calculateAge);
 
     // --- HELPER & KEYBOARD HANDLERS ---
     function formatNumber(valStr) {
@@ -545,7 +618,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const num = parseFloat(valStr);
         if (isNaN(num)) return valStr;
         
-        // Prevent display overflow for long decimal numbers
         if (valStr.includes('.') && valStr.split('.')[1].length > 6) {
             return num.toLocaleString(undefined, { maximumFractionDigits: 6 });
         }
@@ -560,27 +632,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Keyboard support
     document.addEventListener('keydown', (e) => {
-        // Ignore keydown if user is typing in date inputs
         if (document.activeElement && (document.activeElement.tagName === 'INPUT')) return;
+
+        if (e.key === 'Escape') {
+            if (historyPanel.classList.contains('open')) {
+                closeHistory();
+                return;
+            }
+        }
 
         const key = e.key;
 
         if (currentTab === 'standard') {
             if (/^[0-9]$/.test(key)) {
                 handleStdNumber(key);
+                highlightMatchingKey('#tab-standard', key);
             } else if (key === '.') {
                 handleStdNumber('.');
+                highlightMatchingKey('#tab-standard', '.');
             } else if (['+', '-', '*', '/'].includes(key)) {
                 handleStdAction('operator', key);
+                highlightMatchingKey('#tab-standard', key, 'operator');
             } else if (key === 'Enter' || key === '=') {
                 e.preventDefault();
                 handleStdAction('equals');
+                highlightMatchingKey('#tab-standard', '=', 'equals');
             } else if (key === 'Backspace') {
                 handleStdAction('backspace');
+                highlightMatchingKey('#tab-standard', null, 'backspace');
             } else if (key === 'Escape' || key.toLowerCase() === 'c') {
                 handleStdAction('clear');
+                highlightMatchingKey('#tab-standard', null, 'clear');
             } else if (key === '%') {
                 handleStdAction('percent');
+                highlightMatchingKey('#tab-standard', '%', 'percent');
             }
         } else if (currentTab === 'scientific') {
             if (/^[0-9.]$/.test(key)) {
@@ -591,12 +676,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateSciDisplay();
             } else if (key === 'Enter' || key === '=') {
                 e.preventDefault();
-                document.querySelector('#tab-scientific .btn-equals').click();
+                const equalsBtn = document.querySelector('#tab-scientific .key-equals');
+                if (equalsBtn) equalsBtn.click();
             } else if (key === 'Backspace') {
-                document.querySelector('#tab-scientific [data-action="backspace"]').click();
+                const backBtn = document.querySelector('#tab-scientific [data-action="backspace"]');
+                if (backBtn) backBtn.click();
             } else if (key === 'Escape' || key.toLowerCase() === 'c') {
-                document.querySelector('#tab-scientific [data-action="clear"]').click();
+                const clearBtn = document.querySelector('#tab-scientific [data-action="clear"]');
+                if (clearBtn) clearBtn.click();
             }
         }
     });
+
+    function highlightMatchingKey(containerSelector, value, action) {
+        let selector = '';
+        if (action) {
+            if (value) {
+                selector = `${containerSelector} [data-action="${action}"][data-value="${value}"]`;
+            } else {
+                selector = `${containerSelector} [data-action="${action}"]`;
+            }
+        } else if (value) {
+            selector = `${containerSelector} [data-value="${value}"]`;
+        }
+        if (selector) {
+            const btn = document.querySelector(selector);
+            triggerButtonFeedback(btn);
+        }
+    }
 });
