@@ -3,43 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A simple, elegant, and modern calculator featuring Standard, Scientific, and Age calculation modes.">
-    <title>Calculator</title>
+    <meta name="description" content="A stunning glassmorphism calculator featuring Standard, Scientific, Age, and Unit calculation modes with vibrant glowing accents.">
+    <title>GlowCalc - Modern Glassmorphism Calculator</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Ambient Floating Glow Mesh Orbs -->
+    <div class="ambient-mesh">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+        <div class="glow-orb orb-4"></div>
+    </div>
+
     <div class="calculator-wrapper">
-        <div class="calculator" id="main-calculator">
+        <div class="calculator glass-card" id="main-calculator">
             <!-- Top App Bar -->
             <header class="calc-header">
                 <!-- Mode Switcher Tabs -->
-                <nav class="mode-tabs" role="tablist" aria-label="Calculator Modes">
+                <nav class="mode-tabs glass-subcard" role="tablist" aria-label="Calculator Modes">
                     <button class="mode-tab active" data-tab="standard" role="tab" aria-selected="true" aria-controls="tab-standard" id="tab-btn-standard">
-                        Standard
+                        <span class="tab-label">Standard</span>
                     </button>
                     <button class="mode-tab" data-tab="scientific" role="tab" aria-selected="false" aria-controls="tab-scientific" id="tab-btn-scientific">
-                        Scientific
+                        <span class="tab-label">Scientific</span>
                     </button>
                     <button class="mode-tab" data-tab="age" role="tab" aria-selected="false" aria-controls="tab-age" id="tab-btn-age">
-                        Age
+                        <span class="tab-label">Age</span>
+                    </button>
+                    <button class="mode-tab" data-tab="unit" role="tab" aria-selected="false" aria-controls="tab-unit" id="tab-btn-unit">
+                        <span class="tab-label">Unit</span>
                     </button>
                 </nav>
 
                 <!-- Header Actions -->
                 <div class="calc-actions">
-                    <button class="icon-action-btn" id="history-toggle-btn" title="Calculation History" aria-label="Toggle History">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <button class="icon-action-btn glass-btn" id="sound-toggle-btn" title="Toggle Sound Feedback" aria-label="Toggle Sound Feedback">
+                        <svg class="sound-on-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                        </svg>
+                        <svg class="sound-off-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <line x1="23" y1="9" x2="17" y2="15"></line>
+                            <line x1="17" y1="9" x2="23" y2="15"></line>
+                        </svg>
+                    </button>
+                    <button class="icon-action-btn glass-btn" id="history-toggle-btn" title="Calculation History" aria-label="Toggle History">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="10"></circle>
                             <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
                         <span class="history-badge" id="history-badge" style="display: none;"></span>
                     </button>
-                    <button class="icon-action-btn" id="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Light/Dark Theme">
-                        <svg class="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <button class="icon-action-btn glass-btn" id="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Light/Dark Theme">
+                        <svg class="sun-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="5"></circle>
                             <line x1="12" y1="1" x2="12" y2="3"></line>
                             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -50,7 +73,7 @@
                             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
                             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
                         </svg>
-                        <svg class="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="moon-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                         </svg>
                     </button>
@@ -59,176 +82,205 @@
 
             <!-- STANDARD CALCULATOR -->
             <main class="tab-panel active" id="tab-standard" role="tabpanel" aria-labelledby="tab-btn-standard">
-                <div class="screen-area" id="std-screen" title="Click to copy result">
+                <div class="screen-area glass-display" id="std-screen" title="Click to copy result">
+                    <div class="copy-hint-badge">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <span>Click to copy</span>
+                    </div>
                     <div class="expression-preview" id="std-expression">&nbsp;</div>
                     <div class="result-display" id="std-display">0</div>
                 </div>
 
                 <div class="keypad std-grid">
-                    <button class="key key-func" data-action="clear" id="key-clear">AC</button>
-                    <button class="key key-func" data-action="backspace" aria-label="Delete last character">
+                    <button class="key key-func glass-key" data-action="clear" id="key-clear">AC</button>
+                    <button class="key key-func glass-key" data-action="backspace" aria-label="Delete last character">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
                     </button>
-                    <button class="key key-func" data-action="percent">%</button>
-                    <button class="key key-op" data-action="operator" data-value="/">÷</button>
+                    <button class="key key-func glass-key" data-action="percent">%</button>
+                    <button class="key key-op glow-op" data-action="operator" data-value="/">÷</button>
 
-                    <button class="key key-num" data-value="7">7</button>
-                    <button class="key key-num" data-value="8">8</button>
-                    <button class="key key-num" data-value="9">9</button>
-                    <button class="key key-op" data-action="operator" data-value="*">×</button>
+                    <button class="key key-num glass-key" data-value="7">7</button>
+                    <button class="key key-num glass-key" data-value="8">8</button>
+                    <button class="key key-num glass-key" data-value="9">9</button>
+                    <button class="key key-op glow-op" data-action="operator" data-value="*">×</button>
 
-                    <button class="key key-num" data-value="4">4</button>
-                    <button class="key key-num" data-value="5">5</button>
-                    <button class="key key-num" data-value="6">6</button>
-                    <button class="key key-op" data-action="operator" data-value="-">−</button>
+                    <button class="key key-num glass-key" data-value="4">4</button>
+                    <button class="key key-num glass-key" data-value="5">5</button>
+                    <button class="key key-num glass-key" data-value="6">6</button>
+                    <button class="key key-op glow-op" data-action="operator" data-value="-">−</button>
 
-                    <button class="key key-num" data-value="1">1</button>
-                    <button class="key key-num" data-value="2">2</button>
-                    <button class="key key-num" data-value="3">3</button>
-                    <button class="key key-op" data-action="operator" data-value="+">+</button>
+                    <button class="key key-num glass-key" data-value="1">1</button>
+                    <button class="key key-num glass-key" data-value="2">2</button>
+                    <button class="key key-num glass-key" data-value="3">3</button>
+                    <button class="key key-op glow-op" data-action="operator" data-value="+">+</button>
 
-                    <button class="key key-func" data-action="negate">±</button>
-                    <button class="key key-num" data-value="0">0</button>
-                    <button class="key key-num" data-value=".">.</button>
-                    <button class="key key-equals" data-action="equals">=</button>
+                    <button class="key key-func glass-key" data-action="negate">±</button>
+                    <button class="key key-num glass-key" data-value="0">0</button>
+                    <button class="key key-num glass-key" data-value=".">.</button>
+                    <button class="key key-equals hero-equals" data-action="equals">=</button>
                 </div>
             </main>
 
             <!-- SCIENTIFIC CALCULATOR -->
             <main class="tab-panel" id="tab-scientific" role="tabpanel" aria-labelledby="tab-btn-scientific">
-                <div class="screen-area" id="sci-screen" title="Click to copy result">
+                <div class="screen-area glass-display" id="sci-screen" title="Click to copy result">
                     <div class="screen-top-bar">
-                        <button class="mode-toggle-pill" id="angle-mode-btn" title="Toggle Angle Mode (DEG/RAD)">DEG</button>
+                        <button class="mode-toggle-pill glass-pill" id="angle-mode-btn" title="Toggle Angle Mode (DEG/RAD)">DEG</button>
+                        <div class="copy-hint-badge">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <span>Copy</span>
+                        </div>
                     </div>
                     <div class="expression-preview" id="sci-expression">&nbsp;</div>
                     <div class="result-display" id="sci-display">0</div>
                 </div>
 
                 <div class="keypad sci-grid">
-                    <!-- Scientific Functions -->
-                    <button class="key key-sci" data-action="sci-func" data-value="sin">sin</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="cos">cos</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="tan">tan</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="ln">ln</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="log">log</button>
+                    <!-- Scientific Functions Row 1 -->
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="sin">sin</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="cos">cos</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="tan">tan</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="ln">ln</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="log">log</button>
 
-                    <button class="key key-sci" data-action="sci-func" data-value="asin">sin⁻¹</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="acos">cos⁻¹</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="atan">tan⁻¹</button>
-                    <button class="key key-sci" data-action="sci-const" data-value="e">e</button>
-                    <button class="key key-sci" data-action="sci-const" data-value="pi">π</button>
+                    <!-- Row 2 -->
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="asin">sin⁻¹</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="acos">cos⁻¹</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="atan">tan⁻¹</button>
+                    <button class="key key-sci glass-key" data-action="sci-const" data-value="e">e</button>
+                    <button class="key key-sci glass-key" data-action="sci-const" data-value="pi">π</button>
 
-                    <button class="key key-sci" data-action="sci-op" data-value="^">xʸ</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="sqr">x²</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="sqrt">√x</button>
-                    <button class="key key-func" data-action="clear">AC</button>
-                    <button class="key key-func" data-action="backspace" aria-label="Delete">
+                    <!-- Row 3 -->
+                    <button class="key key-sci glass-key" data-action="sci-op" data-value="^">xʸ</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="sqr">x²</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="sqrt">√x</button>
+                    <button class="key key-func glass-key" data-action="clear">AC</button>
+                    <button class="key key-func glass-key" data-action="backspace" aria-label="Delete">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
                     </button>
 
-                    <button class="key key-sci" data-action="insert" data-value="(">(</button>
-                    <button class="key key-sci" data-action="insert" data-value=")"><span style="letter-spacing: 0;">)</span></button>
-                    <button class="key key-sci" data-action="sci-func" data-value="fact">n!</button>
-                    <button class="key key-func" data-action="percent">%</button>
-                    <button class="key key-op" data-action="operator" data-value="/">÷</button>
+                    <!-- Row 4 -->
+                    <button class="key key-sci glass-key" data-action="insert" data-value="(">(</button>
+                    <button class="key key-sci glass-key" data-action="insert" data-value=")"><span style="letter-spacing: 0;">)</span></button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="fact">n!</button>
+                    <button class="key key-func glass-key" data-action="percent">%</button>
+                    <button class="key key-op glow-op" data-action="operator" data-value="/">÷</button>
 
-                    <button class="key key-num" data-value="7">7</button>
-                    <button class="key key-num" data-value="8">8</button>
-                    <button class="key key-num" data-value="9">9</button>
-                    <button class="key key-op" data-action="operator" data-value="*">×</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="cbrt">³√x</button>
+                    <!-- Row 5 -->
+                    <button class="key key-num glass-key" data-value="7">7</button>
+                    <button class="key key-num glass-key" data-value="8">8</button>
+                    <button class="key key-num glass-key" data-value="9">9</button>
+                    <button class="key key-op glow-op" data-action="operator" data-value="*">×</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="cbrt">³√x</button>
 
-                    <button class="key key-num" data-value="4">4</button>
-                    <button class="key key-num" data-value="5">5</button>
-                    <button class="key key-num" data-value="6">6</button>
-                    <button class="key key-op" data-action="operator" data-value="-">−</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="inv">1/x</button>
+                    <!-- Row 6 -->
+                    <button class="key key-num glass-key" data-value="4">4</button>
+                    <button class="key key-num glass-key" data-value="5">5</button>
+                    <button class="key key-num glass-key" data-value="6">6</button>
+                    <button class="key key-op glow-op" data-action="operator" data-value="-">−</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="inv">1/x</button>
 
-                    <button class="key key-num" data-value="1">1</button>
-                    <button class="key key-num" data-value="2">2</button>
-                    <button class="key key-num" data-value="3">3</button>
-                    <button class="key key-op" data-action="operator" data-value="+">+</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="abs">|x|</button>
+                    <!-- Row 7 -->
+                    <button class="key key-num glass-key" data-value="1">1</button>
+                    <button class="key key-num glass-key" data-value="2">2</button>
+                    <button class="key key-num glass-key" data-value="3">3</button>
+                    <button class="key key-op glow-op" data-action="operator" data-value="+">+</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="abs">|x|</button>
 
-                    <button class="key key-func" data-action="negate">±</button>
-                    <button class="key key-num" data-value="0">0</button>
-                    <button class="key key-num" data-value=".">.</button>
-                    <button class="key key-equals" data-action="equals">=</button>
-                    <button class="key key-sci" data-action="sci-func" data-value="exp">EXP</button>
+                    <!-- Row 8 -->
+                    <button class="key key-func glass-key" data-action="negate">±</button>
+                    <button class="key key-num glass-key" data-value="0">0</button>
+                    <button class="key key-num glass-key" data-value=".">.</button>
+                    <button class="key key-equals hero-equals" data-action="equals">=</button>
+                    <button class="key key-sci glass-key" data-action="sci-func" data-value="exp">EXP</button>
                 </div>
             </main>
 
             <!-- AGE CALCULATOR -->
             <main class="tab-panel" id="tab-age" role="tabpanel" aria-labelledby="tab-btn-age">
                 <div class="age-wrapper">
-                    <!-- Date Inputs -->
-                    <div class="age-inputs-card">
-                        <div class="form-group">
-                            <label for="dob-input">Date of Birth</label>
-                            <input type="date" id="dob-input" aria-label="Date of birth">
+                    <!-- Date Inputs Glass Card -->
+                    <div class="age-inputs-card glass-subcard">
+                        <div class="age-inputs-grid">
+                            <div class="form-group">
+                                <label for="dob-input">
+                                    <span class="label-icon">🎂</span>
+                                    <span>Date of Birth</span>
+                                </label>
+                                <input type="date" id="dob-input" class="glass-input" aria-label="Date of birth">
+                            </div>
+                            <div class="form-group">
+                                <label for="target-date-input">
+                                    <span class="label-icon">📅</span>
+                                    <span>Age on Date</span>
+                                </label>
+                                <input type="date" id="target-date-input" class="glass-input" aria-label="Target date for age calculation">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="target-date-input">Age on Date</label>
-                            <input type="date" id="target-date-input" aria-label="Target date for age calculation">
-                        </div>
-                        <button class="btn-calc-age" id="calc-age-btn">
-                            Calculate Age
+                        <button class="btn-calc-age glow-btn" id="calc-age-btn">
+                            <span>Calculate Age</span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                         </button>
                     </div>
 
                     <!-- Age Result Breakdown -->
                     <div class="age-result-container" id="age-results-area">
-                        <!-- Hero Age Result -->
-                        <div class="age-hero-card">
-                            <div class="age-hero-title">Your Age</div>
+                        <!-- Hero Age Result Bento Card -->
+                        <div class="age-hero-card glass-subcard">
+                            <div class="age-hero-title">
+                                <span class="badge-dot"></span>
+                                <span>Chronological Age</span>
+                            </div>
                             <div class="age-hero-units">
-                                <div class="unit-item">
-                                    <span class="unit-num" id="age-years">0</span>
+                                <div class="unit-item glass-unit-tile">
+                                    <span class="unit-num gradient-text" id="age-years">0</span>
                                     <span class="unit-text">Years</span>
                                 </div>
-                                <div class="unit-item">
-                                    <span class="unit-num" id="age-months">0</span>
+                                <div class="unit-item glass-unit-tile">
+                                    <span class="unit-num gradient-text" id="age-months">0</span>
                                     <span class="unit-text">Months</span>
                                 </div>
-                                <div class="unit-item">
-                                    <span class="unit-num" id="age-days">0</span>
+                                <div class="unit-item glass-unit-tile">
+                                    <span class="unit-num gradient-text" id="age-days">0</span>
                                     <span class="unit-text">Days</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Next Birthday Card -->
-                        <div class="next-birthday-banner">
-                            <div class="bday-icon">🎂</div>
+                        <!-- Next Birthday Glass Card -->
+                        <div class="next-birthday-banner glass-subcard">
+                            <div class="bday-icon-wrap">
+                                <span class="bday-icon">🎈</span>
+                            </div>
                             <div class="bday-text-group">
                                 <span class="bday-label">Next Birthday</span>
                                 <span class="bday-val" id="next-bday-text">Select your date of birth</span>
                             </div>
                         </div>
 
-                        <!-- Secondary Stats -->
+                        <!-- Secondary Stats Bento Grid -->
                         <div class="age-stats-grid">
-                            <div class="stat-box">
+                            <div class="stat-box glass-micro-card">
                                 <span class="stat-name">Total Months</span>
                                 <span class="stat-value" id="stat-total-months">0</span>
                             </div>
-                            <div class="stat-box">
+                            <div class="stat-box glass-micro-card">
                                 <span class="stat-name">Total Weeks</span>
                                 <span class="stat-value" id="stat-total-weeks">0</span>
                             </div>
-                            <div class="stat-box">
+                            <div class="stat-box glass-micro-card">
                                 <span class="stat-name">Total Days</span>
                                 <span class="stat-value" id="stat-total-days">0</span>
                             </div>
-                            <div class="stat-box">
+                            <div class="stat-box glass-micro-card">
                                 <span class="stat-name">Total Hours</span>
                                 <span class="stat-value" id="stat-total-hours">0</span>
                             </div>
-                            <div class="stat-box">
+                            <div class="stat-box glass-micro-card">
                                 <span class="stat-name">Total Minutes</span>
                                 <span class="stat-value" id="stat-total-minutes">0</span>
                             </div>
-                            <div class="stat-box">
+                            <div class="stat-box glass-micro-card">
                                 <span class="stat-name">Day of Birth</span>
                                 <span class="stat-value" id="stat-dob-day">-</span>
                             </div>
@@ -237,20 +289,140 @@
                 </div>
             </main>
 
+            <!-- UNIT CONVERTER -->
+            <main class="tab-panel" id="tab-unit" role="tabpanel" aria-labelledby="tab-btn-unit">
+                <div class="unit-wrapper">
+                    <!-- Category Selector Tabs -->
+                    <div class="unit-categories glass-scroll-nav" id="unit-categories" role="tablist" aria-label="Unit Category">
+                        <button class="category-chip active" data-category="length" role="tab" aria-selected="true">
+                            <span class="chip-icon">📏</span>
+                            <span class="chip-label">Length</span>
+                        </button>
+                        <button class="category-chip" data-category="mass" role="tab" aria-selected="false">
+                            <span class="chip-icon">⚖️</span>
+                            <span class="chip-label">Mass</span>
+                        </button>
+                        <button class="category-chip" data-category="temperature" role="tab" aria-selected="false">
+                            <span class="chip-icon">🌡️</span>
+                            <span class="chip-label">Temp</span>
+                        </button>
+                        <button class="category-chip" data-category="area" role="tab" aria-selected="false">
+                            <span class="chip-icon">📐</span>
+                            <span class="chip-label">Area</span>
+                        </button>
+                        <button class="category-chip" data-category="volume" role="tab" aria-selected="false">
+                            <span class="chip-icon">🧪</span>
+                            <span class="chip-label">Volume</span>
+                        </button>
+                        <button class="category-chip" data-category="speed" role="tab" aria-selected="false">
+                            <span class="chip-icon">🚀</span>
+                            <span class="chip-label">Speed</span>
+                        </button>
+                        <button class="category-chip" data-category="time" role="tab" aria-selected="false">
+                            <span class="chip-icon">⏱️</span>
+                            <span class="chip-label">Time</span>
+                        </button>
+                        <button class="category-chip" data-category="data" role="tab" aria-selected="false">
+                            <span class="chip-icon">💾</span>
+                            <span class="chip-label">Data</span>
+                        </button>
+                        <button class="category-chip" data-category="energy" role="tab" aria-selected="false">
+                            <span class="chip-icon">⚡</span>
+                            <span class="chip-label">Energy</span>
+                        </button>
+                        <button class="category-chip" data-category="pressure" role="tab" aria-selected="false">
+                            <span class="chip-icon">🌪️</span>
+                            <span class="chip-label">Pressure</span>
+                        </button>
+                    </div>
+
+                    <!-- Converter Dual Card Section -->
+                    <div class="converter-cards-container">
+                        <!-- 'From' Card -->
+                        <div class="converter-card glass-subcard" id="card-from">
+                            <div class="converter-card-header">
+                                <span class="converter-card-tag">
+                                    <span class="tag-glow"></span>
+                                    <span>From</span>
+                                </span>
+                                <div class="select-wrapper glass-select-wrap">
+                                    <select id="unit-from-select" class="unit-dropdown" aria-label="From Unit"></select>
+                                    <svg class="select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </div>
+                            </div>
+                            <div class="converter-input-row">
+                                <input type="number" step="any" id="unit-from-val" class="converter-num-input" value="1" placeholder="0" aria-label="From value">
+                            </div>
+                        </div>
+
+                        <!-- Mid Swap & Rate Divider -->
+                        <div class="converter-divider">
+                            <button class="swap-units-btn glow-swap-btn" id="swap-units-btn" title="Swap From and To units" aria-label="Swap units">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="7 10 12 5 17 10"></polyline>
+                                    <polyline points="17 14 12 19 7 14"></polyline>
+                                </svg>
+                            </button>
+                            <span class="unit-formula-badge glass-pill" id="unit-formula-badge">1 m = 3.28084 ft</span>
+                        </div>
+
+                        <!-- 'To' Card -->
+                        <div class="converter-card glass-subcard" id="card-to">
+                            <div class="converter-card-header">
+                                <span class="converter-card-tag">
+                                    <span class="tag-glow to-glow"></span>
+                                    <span>To</span>
+                                </span>
+                                <div class="select-wrapper glass-select-wrap">
+                                    <select id="unit-to-select" class="unit-dropdown" aria-label="To Unit"></select>
+                                    <svg class="select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </div>
+                            </div>
+                            <div class="converter-result-row" id="unit-result-container" title="Click to copy result">
+                                <div class="converter-result-value gradient-text" id="unit-to-val">3.28084</div>
+                                <button class="copy-result-btn glass-btn" id="copy-unit-result-btn" title="Copy converted value" aria-label="Copy result">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- All Conversions in Category -->
+                    <div class="unit-grid-section">
+                        <div class="unit-grid-header">
+                            <span class="unit-grid-title">All Equivalents</span>
+                            <span class="unit-grid-subtitle" id="unit-grid-subtitle">equivalent to 1 m</span>
+                        </div>
+                        <div class="unit-all-grid" id="unit-all-grid">
+                            <!-- Populated with dynamic glass chips -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+
             <!-- Collapsible / Overlay History Drawer -->
             <div class="history-drawer-backdrop" id="history-backdrop"></div>
-            <aside class="history-drawer" id="history-panel" aria-label="Calculation History" aria-hidden="true">
+            <aside class="history-drawer glass-drawer" id="history-panel" aria-label="Calculation History" aria-hidden="true">
                 <div class="history-drawer-header">
-                    <h3>History</h3>
+                    <div class="history-title-wrap">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <h3>History</h3>
+                    </div>
                     <div class="history-header-actions">
-                        <button class="clear-btn" id="clear-history-btn" title="Clear History">
+                        <button class="clear-btn glass-btn" id="clear-history-btn" title="Clear History">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
                             Clear
                         </button>
-                        <button class="close-drawer-btn" id="close-history-btn" title="Close History">
+                        <button class="close-drawer-btn glass-btn" id="close-history-btn" title="Close History">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -259,12 +431,18 @@
                     </div>
                 </div>
                 <div class="history-drawer-body" id="history-list">
-                    <div class="empty-history">No calculations yet</div>
+                    <div class="empty-history">
+                        <span class="empty-icon">⏳</span>
+                        <span>No calculations yet</span>
+                    </div>
                 </div>
             </aside>
 
             <!-- Toast feedback for copy -->
-            <div class="toast-feedback" id="toast-feedback">Copied to clipboard</div>
+            <div class="toast-feedback glass-toast" id="toast-feedback">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span id="toast-text">Copied to clipboard</span>
+            </div>
         </div>
     </div>
 

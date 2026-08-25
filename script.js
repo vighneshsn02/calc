@@ -1,11 +1,13 @@
 /**
- * Calculator - Simple, Fast, and Modern
+ * GlowCalc - Modern Glassmorphism Calculator
+ * Complete Engine: Standard, Scientific, Age & Unit Modes with Audio Feedback
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- APP STATE ---
-    let currentTab = 'standard'; // 'standard', 'scientific', 'age'
+    let currentTab = 'standard'; // 'standard', 'scientific', 'age', 'unit'
     let isDegMode = true; // DEG vs RAD for trig functions
+    let soundEnabled = JSON.parse(localStorage.getItem('glow_calc_sound') ?? 'true');
     let history = JSON.parse(localStorage.getItem('omni_calc_history') || '[]');
 
     // Standard Calc State
@@ -20,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Elements
     const mainCalculator = document.getElementById('main-calculator');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const soundToggleBtn = document.getElementById('sound-toggle-btn');
     const historyToggleBtn = document.getElementById('history-toggle-btn');
     const historyPanel = document.getElementById('history-panel');
     const historyBackdrop = document.getElementById('history-backdrop');
@@ -28,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearHistoryBtn = document.getElementById('clear-history-btn');
     const historyBadge = document.getElementById('history-badge');
     const toastFeedback = document.getElementById('toast-feedback');
+    const toastText = document.getElementById('toast-text');
 
     const tabBtns = document.querySelectorAll('.mode-tab');
     const tabPanels = document.querySelectorAll('.tab-panel');
@@ -46,38 +50,117 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetDateInput = document.getElementById('target-date-input');
     const calcAgeBtn = document.getElementById('calc-age-btn');
 
+    // Unit Converter elements
+    const categoryChips = document.querySelectorAll('.category-chip');
+    const unitFromSelect = document.getElementById('unit-from-select');
+    const unitToSelect = document.getElementById('unit-to-select');
+    const unitFromInput = document.getElementById('unit-from-val');
+    const unitToVal = document.getElementById('unit-to-val');
+    const swapUnitsBtn = document.getElementById('swap-units-btn');
+    const unitFormulaBadge = document.getElementById('unit-formula-badge');
+    const unitResultContainer = document.getElementById('unit-result-container');
+    const copyUnitResultBtn = document.getElementById('copy-unit-result-btn');
+    const unitGridSubtitle = document.getElementById('unit-grid-subtitle');
+    const unitAllGrid = document.getElementById('unit-all-grid');
+
     // Default Dates for Age Calc
-    const todayStr = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
     if (targetDateInput) targetDateInput.value = todayStr;
+
+    // Set default DOB to 2000-01-01 if empty
+    if (dobInput && !dobInput.value) {
+        dobInput.value = '2000-01-01';
+    }
+
+    // --- SYNTHESIZED AUDIO FEEDBACK (Web Audio API) ---
+    let audioCtx = null;
+    function playClickSound(freq = 600, type = 'sine') {
+        if (!soundEnabled) return;
+        try {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.5, audioCtx.currentTime + 0.04);
+
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.045);
+        } catch (e) {
+            // Audio context not allowed or supported
+        }
+    }
+
+    function updateSoundBtnUI() {
+        if (!soundToggleBtn) return;
+        const onIcon = soundToggleBtn.querySelector('.sound-on-icon');
+        const offIcon = soundToggleBtn.querySelector('.sound-off-icon');
+        if (onIcon && offIcon) {
+            onIcon.style.display = soundEnabled ? 'block' : 'none';
+            offIcon.style.display = soundEnabled ? 'none' : 'block';
+        }
+    }
+    updateSoundBtnUI();
+
+    if (soundToggleBtn) {
+        soundToggleBtn.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem('glow_calc_sound', JSON.stringify(soundEnabled));
+            updateSoundBtnUI();
+            showToast(soundEnabled ? 'Sound feedback ON' : 'Sound feedback OFF');
+            if (soundEnabled) playClickSound(700);
+        });
+    }
 
     // --- THEME MANAGEMENT ---
     const savedTheme = localStorage.getItem('omni_calc_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
-    themeToggleBtn.addEventListener('click', () => {
-        const activeTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('omni_calc_theme', newTheme);
-    });
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const activeTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('omni_calc_theme', newTheme);
+            playClickSound(850);
+        });
+    }
 
     // --- TOAST HELPER ---
     let toastTimeout;
     function showToast(message) {
         if (!toastFeedback) return;
-        toastFeedback.textContent = message;
+        if (toastText) {
+            toastText.textContent = message;
+        } else {
+            toastFeedback.textContent = message;
+        }
         toastFeedback.classList.add('show');
         clearTimeout(toastTimeout);
         toastTimeout = setTimeout(() => {
             toastFeedback.classList.remove('show');
-        }, 1800);
+        }, 1900);
     }
 
-    // --- COPY TO CLIPBOARD ON DISPLAY CLICK ---
+    // --- COPY TO CLIPBOARD ---
     function copyDisplayValue(val) {
-        if (!val || val === '0' || val === 'Error') return;
+        if (!val || val === '0' || val === 'Error' || val === '–') return;
         navigator.clipboard.writeText(val).then(() => {
             showToast('Copied to clipboard');
+            playClickSound(900);
         }).catch(() => {
             showToast('Unable to copy');
         });
@@ -95,11 +178,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (copyUnitResultBtn) {
+        copyUnitResultBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (unitToVal) copyDisplayValue(unitToVal.textContent.trim());
+        });
+    }
+
+    if (unitResultContainer) {
+        unitResultContainer.addEventListener('click', () => {
+            if (unitToVal) copyDisplayValue(unitToVal.textContent.trim());
+        });
+    }
+
     // --- HISTORY OVERLAY DRAWER ---
     function openHistory() {
         historyPanel.classList.add('open');
         historyPanel.setAttribute('aria-hidden', 'false');
         historyBackdrop.classList.add('active');
+        playClickSound(550);
     }
 
     function closeHistory() {
@@ -108,32 +205,33 @@ document.addEventListener('DOMContentLoaded', () => {
         historyBackdrop.classList.remove('active');
     }
 
-    historyToggleBtn.addEventListener('click', () => {
-        if (historyPanel.classList.contains('open')) {
-            closeHistory();
-        } else {
-            openHistory();
-        }
-    });
+    if (historyToggleBtn) {
+        historyToggleBtn.addEventListener('click', () => {
+            if (historyPanel.classList.contains('open')) {
+                closeHistory();
+            } else {
+                openHistory();
+            }
+        });
+    }
 
     if (closeHistoryBtn) closeHistoryBtn.addEventListener('click', closeHistory);
     if (historyBackdrop) historyBackdrop.addEventListener('click', closeHistory);
 
-    clearHistoryBtn.addEventListener('click', () => {
-        history = [];
-        localStorage.removeItem('omni_calc_history');
-        renderHistory();
-        updateHistoryBadge();
-        showToast('History cleared');
-    });
+    if (clearHistoryBtn) {
+        clearHistoryBtn.addEventListener('click', () => {
+            history = [];
+            localStorage.removeItem('omni_calc_history');
+            renderHistory();
+            updateHistoryBadge();
+            showToast('History cleared');
+            playClickSound(400);
+        });
+    }
 
     function updateHistoryBadge() {
         if (!historyBadge) return;
-        if (history.length > 0) {
-            historyBadge.style.display = 'block';
-        } else {
-            historyBadge.style.display = 'none';
-        }
+        historyBadge.style.display = history.length > 0 ? 'block' : 'none';
     }
 
     function saveHistoryItem(expression, result) {
@@ -147,20 +245,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderHistory() {
+        if (!historyList) return;
         if (history.length === 0) {
-            historyList.innerHTML = '<div class="empty-history">No calculations yet</div>';
+            historyList.innerHTML = `
+                <div class="empty-history">
+                    <span class="empty-icon">⏳</span>
+                    <span>No calculations yet</span>
+                </div>
+            `;
             return;
         }
 
         historyList.innerHTML = history.map((item) => `
-            <div class="history-item" data-res="${item.result}">
+            <div class="history-item glass-subcard" data-res="${escapeHtml(item.result)}">
                 <div class="history-expr">${escapeHtml(item.expression)} =</div>
                 <div class="history-res">${escapeHtml(item.result)}</div>
             </div>
         `).join('');
 
         // Click to reuse history result
-        document.querySelectorAll('.history-item').forEach(el => {
+        historyList.querySelectorAll('.history-item').forEach(el => {
             el.addEventListener('click', () => {
                 const res = el.getAttribute('data-res');
                 if (currentTab === 'standard') {
@@ -172,6 +276,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateSciDisplay();
                 }
                 closeHistory();
+                showToast(`Loaded ${res}`);
+                playClickSound(700);
             });
         });
     }
@@ -188,6 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             const targetTab = btn.getAttribute('data-tab');
             switchTab(targetTab);
+            playClickSound(650);
         });
     });
 
@@ -202,12 +309,16 @@ document.addEventListener('DOMContentLoaded', () => {
             p.classList.toggle('active', p.id === `tab-${tabName}`);
         });
 
-        // Toggle container mode classes for responsive widths
-        mainCalculator.classList.remove('mode-scientific', 'mode-age');
+        // Responsive container sizing classes
+        mainCalculator.classList.remove('mode-scientific', 'mode-age', 'mode-unit');
         if (tabName === 'scientific') {
             mainCalculator.classList.add('mode-scientific');
         } else if (tabName === 'age') {
             mainCalculator.classList.add('mode-age');
+            calculateAge();
+        } else if (tabName === 'unit') {
+            mainCalculator.classList.add('mode-unit');
+            updateUnitConversions();
         }
     }
 
@@ -217,6 +328,8 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             isDegMode = !isDegMode;
             angleModeBtn.textContent = isDegMode ? 'DEG' : 'RAD';
+            showToast(`Angle mode: ${isDegMode ? 'Degrees' : 'Radians'}`);
+            playClickSound(750);
         });
     }
 
@@ -224,12 +337,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function adjustFontSize(element, text) {
         if (!element) return;
         const len = text.length;
-        if (len > 14) {
-            element.style.fontSize = '1.4rem';
-        } else if (len > 10) {
-            element.style.fontSize = '1.8rem';
-        } else if (len > 7) {
-            element.style.fontSize = '2.1rem';
+        if (len > 15) {
+            element.style.fontSize = '1.35rem';
+        } else if (len > 11) {
+            element.style.fontSize = '1.75rem';
+        } else if (len > 8) {
+            element.style.fontSize = '2.15rem';
         } else {
             element.style.fontSize = '';
         }
@@ -248,6 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
             stdCurrentInput = '0';
             stdExpression = '';
             stdResetOnNextInput = false;
+            playClickSound(420);
         } else if (action === 'backspace') {
             if (stdResetOnNextInput) {
                 stdCurrentInput = '0';
@@ -258,11 +372,13 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 stdCurrentInput = '0';
             }
+            playClickSound(480);
         } else if (action === 'percent') {
             const val = parseFloat(stdCurrentInput);
             if (!isNaN(val)) {
                 stdCurrentInput = String(val / 100);
             }
+            playClickSound(580);
         } else if (action === 'negate') {
             if (stdCurrentInput !== '0') {
                 if (stdCurrentInput.startsWith('-')) {
@@ -271,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     stdCurrentInput = '-' + stdCurrentInput;
                 }
             }
+            playClickSound(580);
         } else if (action === 'operator') {
             if (stdResetOnNextInput && stdExpression.endsWith('=')) {
                 stdExpression = `${stdCurrentInput} ${value}`;
@@ -278,6 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 stdExpression += ` ${stdCurrentInput} ${value}`;
             }
             stdResetOnNextInput = true;
+            playClickSound(640);
         } else if (action === 'equals') {
             if (!stdExpression || stdExpression.includes('=')) return;
             const fullExpr = `${stdExpression} ${stdCurrentInput}`;
@@ -287,9 +405,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 stdExpression = `${fullExpr} =`;
                 stdCurrentInput = String(evaluated);
                 stdResetOnNextInput = true;
+                playClickSound(800, 'triangle');
             } catch (err) {
                 stdCurrentInput = 'Error';
                 stdResetOnNextInput = true;
+                playClickSound(300, 'sawtooth');
             }
         }
         updateStdDisplay();
@@ -317,6 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+        playClickSound(520);
         updateStdDisplay();
     }
 
@@ -386,6 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (action === 'clear') {
                 sciExpression = '';
                 sciResetOnNextInput = false;
+                playClickSound(420);
             } else if (action === 'backspace') {
                 if (sciResetOnNextInput) {
                     sciExpression = '';
@@ -404,6 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         sciExpression = sciExpression.slice(0, -1);
                     }
                 }
+                playClickSound(480);
             } else if (action === 'sci-func') {
                 if (val === 'sqr') {
                     sciExpression += '^2';
@@ -412,13 +535,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     sciExpression += `${val}(`;
                 }
+                playClickSound(600);
             } else if (action === 'sci-const') {
                 sciExpression += val;
+                playClickSound(550);
             } else if (action === 'sci-op' || action === 'operator') {
                 sciResetOnNextInput = false;
                 sciExpression += ` ${val} `;
+                playClickSound(640);
             } else if (action === 'insert') {
                 sciExpression += val;
+                playClickSound(580);
             } else if (action === 'equals') {
                 if (!sciExpression) return;
                 try {
@@ -426,9 +553,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveHistoryItem(sciExpression, String(result));
                     sciExpression = String(result);
                     sciResetOnNextInput = true;
+                    playClickSound(800, 'triangle');
                 } catch (e) {
                     sciDisplay.textContent = 'Error';
                     sciResetOnNextInput = true;
+                    playClickSound(300, 'sawtooth');
                     return;
                 }
             } else if (action === 'negate') {
@@ -437,11 +566,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     sciExpression = '-' + sciExpression;
                 }
+                playClickSound(580);
             } else if (action === 'percent') {
                 sciExpression += '/100';
+                playClickSound(580);
             } else {
                 // Numbers
                 sciExpression += (val || btn.textContent.trim());
+                playClickSound(520);
             }
 
             updateSciDisplay();
@@ -539,6 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- AGE CALCULATOR LOGIC ---
     function calculateAge() {
+        if (!dobInput || !targetDateInput) return;
         const dobVal = dobInput.value;
         const targetVal = targetDateInput.value;
 
@@ -607,9 +740,299 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    if (calcAgeBtn) calcAgeBtn.addEventListener('click', calculateAge);
+    if (calcAgeBtn) {
+        calcAgeBtn.addEventListener('click', () => {
+            calculateAge();
+            playClickSound(720);
+        });
+    }
     if (dobInput) dobInput.addEventListener('change', calculateAge);
     if (targetDateInput) targetDateInput.addEventListener('change', calculateAge);
+
+    // --- UNIT CONVERTER DATA & ENGINE ---
+    const UNIT_DEFINITIONS = {
+        length: {
+            name: 'Length',
+            base: 'm',
+            units: [
+                { id: 'm', name: 'Meters', symbol: 'm', factor: 1 },
+                { id: 'km', name: 'Kilometers', symbol: 'km', factor: 1000 },
+                { id: 'cm', name: 'Centimeters', symbol: 'cm', factor: 0.01 },
+                { id: 'mm', name: 'Millimeters', symbol: 'mm', factor: 0.001 },
+                { id: 'in', name: 'Inches', symbol: 'in', factor: 0.0254 },
+                { id: 'ft', name: 'Feet', symbol: 'ft', factor: 0.3048 },
+                { id: 'yd', name: 'Yards', symbol: 'yd', factor: 0.9144 },
+                { id: 'mi', name: 'Miles', symbol: 'mi', factor: 1609.344 },
+                { id: 'nmi', name: 'Nautical Miles', symbol: 'NM', factor: 1852 }
+            ]
+        },
+        mass: {
+            name: 'Mass',
+            base: 'kg',
+            units: [
+                { id: 'kg', name: 'Kilograms', symbol: 'kg', factor: 1 },
+                { id: 'g', name: 'Grams', symbol: 'g', factor: 0.001 },
+                { id: 'mg', name: 'Milligrams', symbol: 'mg', factor: 0.000001 },
+                { id: 'lb', name: 'Pounds', symbol: 'lbs', factor: 0.45359237 },
+                { id: 'oz', name: 'Ounces', symbol: 'oz', factor: 0.028349523125 },
+                { id: 'st', name: 'Stone', symbol: 'st', factor: 6.35029318 },
+                { id: 't', name: 'Metric Ton', symbol: 't', factor: 1000 }
+            ]
+        },
+        temperature: {
+            name: 'Temperature',
+            isSpecial: true,
+            units: [
+                { id: 'c', name: 'Celsius', symbol: '°C' },
+                { id: 'f', name: 'Fahrenheit', symbol: '°F' },
+                { id: 'k', name: 'Kelvin', symbol: 'K' }
+            ]
+        },
+        area: {
+            name: 'Area',
+            base: 'sqm',
+            units: [
+                { id: 'sqm', name: 'Square Meters', symbol: 'm²', factor: 1 },
+                { id: 'sqkm', name: 'Square Kilometers', symbol: 'km²', factor: 1000000 },
+                { id: 'sqft', name: 'Square Feet', symbol: 'ft²', factor: 0.09290304 },
+                { id: 'sqyd', name: 'Square Yards', symbol: 'yd²', factor: 0.83612736 },
+                { id: 'acre', name: 'Acres', symbol: 'ac', factor: 4046.8564224 },
+                { id: 'ha', name: 'Hectares', symbol: 'ha', factor: 10000 },
+                { id: 'sqmi', name: 'Square Miles', symbol: 'mi²', factor: 2589988.110336 }
+            ]
+        },
+        volume: {
+            name: 'Volume',
+            base: 'l',
+            units: [
+                { id: 'l', name: 'Liters', symbol: 'L', factor: 1 },
+                { id: 'ml', name: 'Milliliters', symbol: 'mL', factor: 0.001 },
+                { id: 'm3', name: 'Cubic Meters', symbol: 'm³', factor: 1000 },
+                { id: 'gal', name: 'Gallons (US)', symbol: 'gal', factor: 3.785411784 },
+                { id: 'qt', name: 'Quarts (US)', symbol: 'qt', factor: 0.946352946 },
+                { id: 'pt', name: 'Pints (US)', symbol: 'pt', factor: 0.473176473 },
+                { id: 'cup', name: 'Cups (US)', symbol: 'cup', factor: 0.2365882365 },
+                { id: 'floz', name: 'Fluid Ounces (US)', symbol: 'fl oz', factor: 0.0295735295625 }
+            ]
+        },
+        speed: {
+            name: 'Speed',
+            base: 'mps',
+            units: [
+                { id: 'mps', name: 'Meters / second', symbol: 'm/s', factor: 1 },
+                { id: 'kph', name: 'Kilometers / hour', symbol: 'km/h', factor: 0.2777777778 },
+                { id: 'mph', name: 'Miles / hour', symbol: 'mph', factor: 0.44704 },
+                { id: 'knot', name: 'Knots', symbol: 'kn', factor: 0.5144444444 },
+                { id: 'fps', name: 'Feet / second', symbol: 'ft/s', factor: 0.3048 }
+            ]
+        },
+        time: {
+            name: 'Time',
+            base: 's',
+            units: [
+                { id: 's', name: 'Seconds', symbol: 's', factor: 1 },
+                { id: 'ms', name: 'Milliseconds', symbol: 'ms', factor: 0.001 },
+                { id: 'min', name: 'Minutes', symbol: 'min', factor: 60 },
+                { id: 'h', name: 'Hours', symbol: 'h', factor: 3600 },
+                { id: 'd', name: 'Days', symbol: 'd', factor: 86400 },
+                { id: 'wk', name: 'Weeks', symbol: 'wk', factor: 604800 },
+                { id: 'yr', name: 'Years (365d)', symbol: 'yr', factor: 31536000 }
+            ]
+        },
+        data: {
+            name: 'Data',
+            base: 'B',
+            units: [
+                { id: 'B', name: 'Bytes', symbol: 'B', factor: 1 },
+                { id: 'KB', name: 'Kilobytes', symbol: 'KB', factor: 1024 },
+                { id: 'MB', name: 'Megabytes', symbol: 'MB', factor: 1048576 },
+                { id: 'GB', name: 'Gigabytes', symbol: 'GB', factor: 1073741824 },
+                { id: 'TB', name: 'Terabytes', symbol: 'TB', factor: 1099511627776 },
+                { id: 'bit', name: 'Bits', symbol: 'b', factor: 0.125 }
+            ]
+        },
+        energy: {
+            name: 'Energy',
+            base: 'J',
+            units: [
+                { id: 'J', name: 'Joules', symbol: 'J', factor: 1 },
+                { id: 'kJ', name: 'Kilojoules', symbol: 'kJ', factor: 1000 },
+                { id: 'cal', name: 'Calories', symbol: 'cal', factor: 4.184 },
+                { id: 'kcal', name: 'Kilocalories', symbol: 'kcal', factor: 4184 },
+                { id: 'Wh', name: 'Watt-hours', symbol: 'Wh', factor: 3600 },
+                { id: 'kWh', name: 'Kilowatt-hours', symbol: 'kWh', factor: 3600000 },
+                { id: 'eV', name: 'Electronvolts', symbol: 'eV', factor: 1.602176634e-19 },
+                { id: 'BTU', name: 'BTU', symbol: 'BTU', factor: 1055.05585 }
+            ]
+        },
+        pressure: {
+            name: 'Pressure',
+            base: 'Pa',
+            units: [
+                { id: 'Pa', name: 'Pascals', symbol: 'Pa', factor: 1 },
+                { id: 'kPa', name: 'Kilopascals', symbol: 'kPa', factor: 1000 },
+                { id: 'bar', name: 'Bar', symbol: 'bar', factor: 100000 },
+                { id: 'psi', name: 'PSI', symbol: 'psi', factor: 6894.757293168 },
+                { id: 'atm', name: 'Standard Atmospheres', symbol: 'atm', factor: 101325 },
+                { id: 'torr', name: 'Torr / mmHg', symbol: 'Torr', factor: 133.3223684211 }
+            ]
+        }
+    };
+
+    let activeCategory = 'length';
+
+    function initUnitConverter() {
+        // Wire Category Chip Click
+        categoryChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                const cat = chip.getAttribute('data-category');
+                if (cat === activeCategory) return;
+                activeCategory = cat;
+                categoryChips.forEach(c => c.classList.toggle('active', c === chip));
+                populateUnitDropdowns(cat);
+                updateUnitConversions();
+                playClickSound(650);
+            });
+        });
+
+        // Dropdown changes
+        if (unitFromSelect) {
+            unitFromSelect.addEventListener('change', () => {
+                updateUnitConversions();
+                playClickSound(550);
+            });
+        }
+        if (unitToSelect) {
+            unitToSelect.addEventListener('change', () => {
+                updateUnitConversions();
+                playClickSound(550);
+            });
+        }
+
+        // Input value change
+        if (unitFromInput) {
+            unitFromInput.addEventListener('input', () => {
+                updateUnitConversions();
+            });
+        }
+
+        // Swap units button
+        if (swapUnitsBtn) {
+            swapUnitsBtn.addEventListener('click', () => {
+                const temp = unitFromSelect.value;
+                unitFromSelect.value = unitToSelect.value;
+                unitToSelect.value = temp;
+                updateUnitConversions();
+                playClickSound(700);
+            });
+        }
+
+        populateUnitDropdowns(activeCategory);
+        updateUnitConversions();
+    }
+
+    function populateUnitDropdowns(catKey) {
+        const cat = UNIT_DEFINITIONS[catKey];
+        if (!cat || !unitFromSelect || !unitToSelect) return;
+
+        const optionsHtml = cat.units.map((u) => `<option value="${u.id}">${u.name} (${u.symbol})</option>`).join('');
+
+        unitFromSelect.innerHTML = optionsHtml;
+        unitToSelect.innerHTML = optionsHtml;
+
+        // Default selections (first and second unit)
+        unitFromSelect.selectedIndex = 0;
+        unitToSelect.selectedIndex = Math.min(1, cat.units.length - 1);
+    }
+
+    function convertUnits(val, fromId, toId, catKey) {
+        const cat = UNIT_DEFINITIONS[catKey];
+        if (!cat || isNaN(val)) return 0;
+
+        if (catKey === 'temperature') {
+            // Temperature Conversion
+            let inC = val;
+            if (fromId === 'f') inC = (val - 32) * (5 / 9);
+            else if (fromId === 'k') inC = val - 273.15;
+
+            if (toId === 'c') return inC;
+            if (toId === 'f') return (inC * 9 / 5) + 32;
+            if (toId === 'k') return inC + 273.15;
+            return inC;
+        }
+
+        // Linear Factor Conversion
+        const fromUnit = cat.units.find(u => u.id === fromId);
+        const toUnit = cat.units.find(u => u.id === toId);
+        if (!fromUnit || !toUnit) return 0;
+
+        const inBase = val * fromUnit.factor;
+        return inBase / toUnit.factor;
+    }
+
+    function formatConvertedValue(val) {
+        if (isNaN(val) || !isFinite(val)) return '0';
+        if (val === 0) return '0';
+        if (Math.abs(val) < 0.000001 || Math.abs(val) >= 1e12) {
+            return val.toExponential(5).replace(/\+?0*([0-9]+)$/, '$1');
+        }
+        return parseFloat(val.toFixed(6)).toString();
+    }
+
+    function updateUnitConversions() {
+        if (!unitFromSelect || !unitToSelect || !unitFromInput || !unitToVal) return;
+
+        const fromId = unitFromSelect.value;
+        const toId = unitToSelect.value;
+        const inputVal = parseFloat(unitFromInput.value) || 0;
+
+        const converted = convertUnits(inputVal, fromId, toId, activeCategory);
+        const formattedRes = formatConvertedValue(converted);
+        unitToVal.textContent = formattedRes;
+
+        // Formula badge
+        const cat = UNIT_DEFINITIONS[activeCategory];
+        const fromUnit = cat.units.find(u => u.id === fromId);
+        const toUnit = cat.units.find(u => u.id === toId);
+
+        if (fromUnit && toUnit && unitFormulaBadge) {
+            const oneConverted = convertUnits(1, fromId, toId, activeCategory);
+            unitFormulaBadge.textContent = `1 ${fromUnit.symbol} = ${formatConvertedValue(oneConverted)} ${toUnit.symbol}`;
+        }
+
+        if (unitGridSubtitle && fromUnit) {
+            unitGridSubtitle.textContent = `equivalent to ${inputVal} ${fromUnit.symbol}`;
+        }
+
+        // Render All Equivalents Grid
+        if (unitAllGrid && cat) {
+            unitAllGrid.innerHTML = cat.units.map(u => {
+                const eqVal = convertUnits(inputVal, fromId, u.id, activeCategory);
+                const isTarget = u.id === toId;
+                return `
+                    <div class="unit-all-card glass-subcard ${isTarget ? 'is-target' : ''}" data-unit-id="${u.id}">
+                        <div class="unit-all-card-top">
+                            <span class="unit-all-card-name">${u.name}</span>
+                            <span class="unit-all-card-symbol">${u.symbol}</span>
+                        </div>
+                        <div class="unit-all-card-val gradient-text">${formatConvertedValue(eqVal)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            // Click card to set as 'To' unit
+            unitAllGrid.querySelectorAll('.unit-all-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const uId = card.getAttribute('data-unit-id');
+                    unitToSelect.value = uId;
+                    updateUnitConversions();
+                    playClickSound(600);
+                });
+            });
+        }
+    }
+
+    initUnitConverter();
 
     // --- HELPER & KEYBOARD HANDLERS ---
     function formatNumber(valStr) {
@@ -630,9 +1053,9 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => btn.classList.remove('pressed'), 120);
     }
 
-    // Keyboard support
+    // Global Keyboard Shortcuts
     document.addEventListener('keydown', (e) => {
-        if (document.activeElement && (document.activeElement.tagName === 'INPUT')) return;
+        if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT')) return;
 
         if (e.key === 'Escape') {
             if (historyPanel.classList.contains('open')) {
@@ -671,9 +1094,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (/^[0-9.]$/.test(key)) {
                 sciExpression += key;
                 updateSciDisplay();
+                playClickSound(520);
             } else if (['+', '-', '*', '/', '^', '(', ')'].includes(key)) {
                 sciExpression += ` ${key} `;
                 updateSciDisplay();
+                playClickSound(640);
             } else if (key === 'Enter' || key === '=') {
                 e.preventDefault();
                 const equalsBtn = document.querySelector('#tab-scientific .key-equals');
